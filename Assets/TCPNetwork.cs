@@ -88,6 +88,12 @@ public class TCPNetwork : MonoBehaviour {
 		return true;
 	}
 
+    void OnDisable()
+    {
+        _dispatchThread.Abort();
+        _dispatchThread = null;
+    }
+
 	private void Dispatch() {
 		while (IsLoop) {
 			Accept();
