@@ -27,6 +27,10 @@ public class SocketServer : MonoBehaviour
 	// 通知されたイベント
 	private NetEvent _netEvent = NetEvent.None;
 
+	private string _value;
+
+	public GameObject target;
+
 	void Start ()
 	{
 		_statusText = GameObject.Find ("StatusText").GetComponent<Text> ();
@@ -42,11 +46,16 @@ public class SocketServer : MonoBehaviour
 	}
 
 	void Update() {
+		if (_value != null && !_value.Equals ("")) {
+			Debug.Log (_value);
+			target.transform.eulerAngles = new Vector3 (0, float.Parse (_value), 0);
+		}
 		switch (_state) {
 		case State.None:
 			break;
 		case State.StartServer: 
-			UpdateStartServer(); 
+			UpdateStartServer (); 
+
 			break;
 		case State.WaitClient: 
 			UpdateWaitClient(); 
@@ -111,7 +120,7 @@ public class SocketServer : MonoBehaviour
 		if (!_tcpNetwork.IsLoop) {
 			_tcpNetwork.Connect (_hostAddress, _PORT);
 		} else {
-			NetworkEventHandler (NetEvent.Error);
+			// NetworkEventHandler (NetEvent.Error);
 		}
 	}
 
@@ -142,7 +151,8 @@ public class SocketServer : MonoBehaviour
 		Step(State.ConnectToHost);
 	}
 
-	private void NetworkEventHandler(NetEvent netevent) {
+	private void NetworkEventHandler(NetEvent netevent, string value) {
 		_netEvent = netevent;
+		_value = value;
 	}
 }

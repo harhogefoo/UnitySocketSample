@@ -27,7 +27,7 @@ public class TCPNetwork : MonoBehaviour {
 	public bool IsLoop { get; set; }
 	private Thread _dispatchThread;
 
-	private Action<NetEvent> _handler;
+	private Action<NetEvent, string> _handler;
 
 	/// <summary>
 	/// サーバーとして開始
@@ -47,7 +47,7 @@ public class TCPNetwork : MonoBehaviour {
 			return false;
 		}
 
-		_handler(NetEvent.StartServer);
+		_handler(NetEvent.StartServer, "");
 
 		return LaunchThread();
 	}
@@ -71,7 +71,8 @@ public class TCPNetwork : MonoBehaviour {
 		}
 
 		if (_handler != null) {
-			_handler (result ? NetEvent.Connect : NetEvent.Error);
+			// result = result ? NetEvent.Connect : NetEvent.Error; 
+			// _handler (result);
 		}
 		return result;
 	}
@@ -108,10 +109,10 @@ public class TCPNetwork : MonoBehaviour {
 			ms.Write (resBytes, 0, resSize);
 			string resMsg = enc.GetString (ms.GetBuffer (), 0, (int)ms.Length);
 			ms.Close ();
-			Debug.Log (resMsg);
+			// Debug.Log (resMsg);
 
 			// クライアント接続を通知
-			_handler (NetEvent.Connect);
+			_handler (NetEvent.Connect, resMsg);
 
 			string sendMsg = resMsg.Length.ToString ();
 			byte[] sendBytes = enc.GetBytes (sendMsg + "\n");
@@ -121,7 +122,7 @@ public class TCPNetwork : MonoBehaviour {
 		}
 	}
 
-	public void RegHandler(Action<NetEvent> act) {
+	public void RegHandler(Action<NetEvent, string> act) {
 		_handler = act;
 	}
 
